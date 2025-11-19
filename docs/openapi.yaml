@@ -1,0 +1,1052 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "E-Commerce API",
+    "version": "1.0.0",
+    "description": "상품 구매 및 결제 시스템 API"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/products": {
+      "get": {
+        "summary": "상품 목록 조회",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "popular",
+            "in": "query",
+            "description": "인기순 정렬 (desc)",
+            "schema": {
+              "type": "string",
+              "enum": ["desc"]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "조회 개수 제한",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 상품 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "products": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "summary": "상품 상세 조회 (변형 포함)",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "상품 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 상품 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "product": {
+                      "$ref": "#/components/schemas/Product"
+                    },
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductVariant"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND - 상품이 존재하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PRODUCT_NOT_FOUND",
+                  "message": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{productId}/variants": {
+      "get": {
+        "summary": "상품 변형 목록 조회",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "description": "상품 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 상품 변형 목록 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "variants": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProductVariant"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PRODUCT_NOT_FOUND - 상품이 존재하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PRODUCT_NOT_FOUND",
+                  "message": "Product not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/variants/{variantId}": {
+      "get": {
+        "summary": "상품 변형 상세 조회",
+        "tags": ["Products"],
+        "parameters": [
+          {
+            "name": "variantId",
+            "in": "path",
+            "required": true,
+            "description": "상품 변형 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 상품 변형 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductVariant"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PRODUCT_VARIANT_NOT_FOUND - 상품 변형이 존재하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PRODUCT_VARIANT_NOT_FOUND",
+                  "message": "Product variant not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "summary": "주문 생성",
+        "tags": ["Orders"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productVariantId"],
+                "properties": {
+                  "productVariantId": {
+                    "type": "string",
+                    "description": "구매할 상품 변형 ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED - 주문 생성 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "description": "생성된 주문 ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTHENTICATION_REQUIRED - 로그인 되어 있지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "AUTHENTICATION_REQUIRED",
+                  "message": "Authentication is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "PRODUCT_VARIANT_NOT_FOUND - 존재하지 않는 상품 변형 ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PRODUCT_VARIANT_NOT_FOUND",
+                  "message": "Product variant not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "PRODUCT_SOLD_OUT - 품절",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PRODUCT_SOLD_OUT",
+                  "message": "Product is sold out"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/payments": {
+      "post": {
+        "summary": "결제 생성",
+        "tags": ["Payments"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "주문 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "CREATED - 결제가 성공적으로 이루어짐",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTHENTICATION_REQUIRED - 로그인 되어 있지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "AUTHENTICATION_REQUIRED",
+                  "message": "Authentication is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ORDER_NOT_FOUND - 주문이 없거나 해당 주문에 접근할 권한이 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "ORDER_NOT_FOUND",
+                  "message": "Order not found or access denied"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "비즈니스 로직 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "already_paid": {
+                    "value": {
+                      "code": "ALREADY_PAID",
+                      "message": "Payment has already been completed"
+                    }
+                  },
+                  "invalid_payment_method": {
+                    "value": {
+                      "code": "INVALID_PAYMENT_METHOD",
+                      "message": "Invalid payment method (insufficient points, invalid coupon, etc.)"
+                    }
+                  },
+                  "order_canceled": {
+                    "value": {
+                      "code": "ORDER_CANCELED",
+                      "message": "Order has been canceled"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/points": {
+      "get": {
+        "summary": "포인트 조회",
+        "tags": ["Points"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "사용자 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 포인트 조회 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalAmount": {
+                      "type": "number",
+                      "description": "총 포인트 잔액"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "USER_NOT_FOUND - 유저가 존재하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "USER_NOT_FOUND",
+                  "message": "User not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "포인트 충전",
+        "tags": ["Points"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "사용자 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["amount"],
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "충전할 포인트 금액",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK - 포인트 충전 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "totalAmount": {
+                      "type": "number",
+                      "description": "충전 후 총 포인트 잔액"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우 또는 음수가 입력된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format or negative amount"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "USER_NOT_FOUND - 유저가 존재하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "USER_NOT_FOUND",
+                  "message": "User not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/coupons/{couponId}/issue": {
+      "post": {
+        "summary": "선착순 쿠폰 발급",
+        "tags": ["Coupons"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "couponId",
+            "in": "path",
+            "required": true,
+            "description": "쿠폰 ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - 쿠폰 발급 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCoupon"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "MALFORMED_REQUEST - 요청이 잘못된 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Invalid request format"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "AUTHENTICATION_REQUIRED - 로그인 되어 있지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "AUTHENTICATION_REQUIRED",
+                  "message": "Authentication is required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "COUPON_NOT_FOUND - 존재하지 않는 쿠폰이거나 제공 기간이 지난 경우",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "COUPON_NOT_FOUND",
+                  "message": "Coupon not found or expired"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "비즈니스 로직 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "already_issued": {
+                    "value": {
+                      "code": "ALREADY_ISSUED",
+                      "message": "Coupon has already been issued to this user"
+                    }
+                  },
+                  "sold_out": {
+                    "value": {
+                      "code": "COUPON_SOLD_OUT",
+                      "message": "Coupon is sold out"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "INTERNAL_SERVER_ERROR - 처리되지 않은 서버 내부 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INTERNAL_SERVER_ERROR",
+                  "message": "An unexpected error occurred"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "descriptionUrl": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "sellerId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProductVariant": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string",
+            "description": "상품 ID"
+          },
+          "sku": {
+            "type": "string",
+            "description": "재고 관리 코드"
+          },
+          "optionName": {
+            "type": "string",
+            "description": "옵션 이름 (예: 블랙/270mm)"
+          },
+          "price": {
+            "type": "number",
+            "description": "판매 가격"
+          },
+          "stock": {
+            "type": "number",
+            "description": "재고 수량"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "옵션 이미지 URL"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "buyUserId": {
+            "type": "string"
+          },
+          "productVariantId": {
+            "type": "string",
+            "description": "상품 변형 ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ORDER_CREATED", "PAYMENT_COMPLETED", "ORDER_CANCELED"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          },
+          "paymentMethods": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PointPaymentMethod"
+                },
+                {
+                  "$ref": "#/components/schemas/CouponPaymentMethod"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "required": ["paymentMethods"],
+        "properties": {
+          "paymentMethods": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PointPaymentMethod"
+                },
+                {
+                  "$ref": "#/components/schemas/CouponPaymentMethod"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PointPaymentMethod": {
+        "type": "object",
+        "required": ["type", "pointAmount"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["POINT"]
+          },
+          "pointAmount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "사용할 포인트 금액"
+          }
+        }
+      },
+      "CouponPaymentMethod": {
+        "type": "object",
+        "required": ["type", "couponId"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["COUPON"]
+          },
+          "couponId": {
+            "type": "string",
+            "description": "사용할 쿠폰 ID"
+          }
+        }
+      },
+      "UserCoupon": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "couponId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["UNUSED", "USED"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "에러 코드",
+            "enum": [
+              "OK",
+              "MALFORMED_REQUEST",
+              "AUTHENTICATION_REQUIRED",
+              "PRODUCT_NOT_FOUND",
+              "PRODUCT_VARIANT_NOT_FOUND",
+              "ORDER_NOT_FOUND",
+              "USER_NOT_FOUND",
+              "COUPON_NOT_FOUND",
+              "PRODUCT_SOLD_OUT",
+              "ALREADY_PAID",
+              "INVALID_PAYMENT_METHOD",
+              "ORDER_CANCELED",
+              "ALREADY_ISSUED",
+              "COUPON_SOLD_OUT",
+              "INTERNAL_SERVER_ERROR"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "에러 메시지"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT 인증 토큰"
+      }
+    }
+  }
+}
